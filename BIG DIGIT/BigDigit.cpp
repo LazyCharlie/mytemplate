@@ -1,4 +1,5 @@
-#include<bits/stdc++.h>
+#include<iostream>
+#include<algorithm>
 using namespace std;
 #define SIZE 128
 class _int {
@@ -26,6 +27,11 @@ public:
 	const _int operator+(T a);
 
 	const _int operator+(_int a);
+
+	friend istream& operator>>(istream &is, _int &a);
+
+	template<class T>
+	friend bool operator!=(T a, const _int &b);
 
 	~_int();
 };
@@ -55,6 +61,43 @@ const _int operator+(T a, _int _b)//只写了正数相加或负数相加   还�
 		_b.length = max(cnt, _b.length);
 	}
 	return _b;
+}
+
+istream& operator>>(istream &is, _int &a)
+{
+	int cnt = 0;
+	char k[SIZE];
+	char t; scanf("%c", &t);
+	while (isspace(t))scanf("%c", &t);
+	while (isdigit(t)) {
+		k[cnt++] = t;
+		scanf("%c", &t);
+	}
+	int j = cnt;
+	bool flag = false;
+	for (int i = 0; i < cnt; i++) {
+		if (k[i] != '0'&&!flag) {
+			flag = true;
+		}
+		else if (flag == false && i != cnt - 1)j--;
+		if (flag || i == cnt - 1) {
+			a.s[cnt - i - 1] = k[i];
+		}
+	}
+	a.length = j;
+	return is;
+}
+
+template<class T>
+bool operator!=(T a, const _int &b)
+{
+	if (a < 0 && b.sign==false || a >= 0 && b.sign == true)return true;
+	for (int i = 0; i < b.length; i++) {
+		if (b.s[i] - '0' != a % 10)return true;
+		a /= 10;
+	}
+	if (a)return true;
+	return false;
 }
 
 const _int _int::operator+(_int a)
@@ -123,12 +166,10 @@ ostream& operator<<(ostream &os, const _int &a)
 	for (int i = a.length - 1; i >= 0; i--)printf("%c", a.s[i]);
 	return os;
 }
-
+_int a, b;
 int main()
 {
-	int a; cin >> a;
-	_int _a = a;
-	cin >> a;
-	_int _b = a;
-	cout << _a + _b;
+	while (cin >> a >> b && (0 != a || 0 != b)) {
+		cout << a + b << endl;
+	}
 }
