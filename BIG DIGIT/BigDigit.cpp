@@ -1,11 +1,11 @@
-#include<bits/stdc++.h>
+ï»¿#include<bits/stdc++.h>
 using namespace std;
 class _int {
 private:
-	int size = 128;		//×î´óµÄÎ»Êı
+	int size = 128;		//æœ€å¤§çš„ä½æ•°
 	char *pt;
-	int length;			//±íÊ¾Ê®½øÖÆÊıµÄ³¤¶È
-	bool sign;			//±ê¼ÇÕı¸ººÅ
+	int length;			//è¡¨ç¤ºåè¿›åˆ¶æ•°çš„é•¿åº¦
+	bool sign;			//æ ‡è®°æ­£è´Ÿå·
 public:
 	template<class T>
 	_int(T _num);
