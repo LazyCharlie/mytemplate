@@ -2,6 +2,7 @@
 #include<algorithm>
 using namespace std;
 #define SIZE 128
+bool isfail = false;
 class _int {
 private:
 	char s[SIZE];
@@ -60,18 +61,41 @@ const _int operator+(T a, _int _b)//只写了正数相加或负数相加   还�
 		}
 		_b.length = max(cnt, _b.length);
 	}
+	else {
+
+	}
 	return _b;
 }
 
-istream& operator>>(istream &is, _int &a)
-{
-	int cnt = 0;
-	char k[SIZE];
-	char t; scanf("%c", &t);
-	while (isspace(t))scanf("%c", &t);
-	while (isdigit(t)) {
-		k[cnt++] = t;
-		scanf("%c", &t);
+istream& operator>>(istream &is, _int &a)  //包含了处理eof模块，可以从输入流中读取位数不超过SIZE的大整数
+{					
+	if (!is)return is;                  //能达到和平常cin基本一致的效果
+	int cnt = 0; bool signflag = false;//判断是否读入了负号
+	bool read = false;			//判断输入流是否到达结尾
+	char k[SIZE], t = ' ';
+	while (~scanf("%c", &t)) { 
+		if (!isspace(t)) {
+			read = true;
+			break;
+		}
+	}
+	a.sign = false;
+	if (read&&isdigit(t))k[cnt++] = t;
+	else if (read&&t == '-')a.sign = true;  //读入负数
+	else if (read)is.unget();
+	while (~scanf("%c", &t)) {
+		if (isdigit(t)) {
+			k[cnt++] = t; 
+		}
+		else if (isspace(t)) {
+			is.unget();
+			break;
+		}
+		else {
+			is.unget();
+			if (a.sign&&!cnt)is.unget();
+			break;
+		}
 	}
 	int j = cnt;
 	bool flag = false;
@@ -85,6 +109,10 @@ istream& operator>>(istream &is, _int &a)
 		}
 	}
 	a.length = j;
+	if (isspace(t) && !j)is.setstate(ios::eofbit);    //如果只读到空格或者空格也没读到  说明已经到了文件结尾
+	else if (!isspace(t) && isfail)is.setstate(ios::failbit);   //如果之前一次读取已经遇到了其他字符，说明类型不符
+	else if (!isspace(t) && !isfail)isfail = true;     //如果之前一次读取正常但这次遇到其他字符，先进行记录
+	else isfail = false;
 	return is;
 }
 
@@ -167,9 +195,12 @@ ostream& operator<<(ostream &os, const _int &a)
 	return os;
 }
 _int a, b;
+//long long a, b;
 int main()
 {
-	while (cin >> a >> b && (0 != a || 0 != b)) {
+	//freopen("in.txt", "r", stdin);
+	//freopen("out.txt", "w", stdout);
+	while (cin >> a >> b) {
 		cout << a + b << endl;
 	}
 }
