@@ -68,24 +68,30 @@ const _int operator+(T a, _int _b)//只写了正数相加或负数相加   还�
 }
 
 istream& operator>>(istream &is, _int &a)  //包含了处理eof模块，可以从输入流中读取位数不超过SIZE的大整数
-{					
-	if (!is)return is;                  //能达到和平常cin基本一致的效果
+{								  //能达到和平常cin基本一致的效果
 	int cnt = 0; bool signflag = false;//判断是否读入了负号
 	bool read = false;			//判断输入流是否到达结尾
 	char k[SIZE], t = ' ';
-	while (~scanf("%c", &t)) { 
+	while (~scanf("%c", &t)) {
 		if (!isspace(t)) {
 			read = true;
 			break;
 		}
 	}
-	a.sign = false;
+	bool hassign = false;
 	if (read&&isdigit(t))k[cnt++] = t;
-	else if (read&&t == '-')a.sign = true;  //读入负数
+	else if (read&&t == '-') {
+		a.sign = true; 
+		hassign = true;
+	}  //读入负数
+	else if (read&&t == '+') {
+		a.sign = false;
+		hassign = true;
+	}
 	else if (read)is.unget();
 	while (~scanf("%c", &t)) {
 		if (isdigit(t)) {
-			k[cnt++] = t; 
+			k[cnt++] = t;
 		}
 		else if (isspace(t)) {
 			is.unget();
@@ -93,14 +99,14 @@ istream& operator>>(istream &is, _int &a)  //包含了处理eof模块，可以�
 		}
 		else {
 			is.unget();
-			if (a.sign&&!cnt)is.unget();
+			if (hassign && !cnt)is.unget();
 			break;
 		}
 	}
 	int j = cnt;
 	bool flag = false;
 	for (int i = 0; i < cnt; i++) {
-		if (k[i] != '0'&&!flag) {
+		if (k[i] != '0' && !flag) {
 			flag = true;
 		}
 		else if (flag == false && i != cnt - 1)j--;
@@ -109,8 +115,14 @@ istream& operator>>(istream &is, _int &a)  //包含了处理eof模块，可以�
 		}
 	}
 	a.length = j;
-	if (isspace(t) && !j)is.setstate(ios::eofbit);    //如果只读到空格或者空格也没读到  说明已经到了文件结尾
-	else if (!isspace(t) && isfail)is.setstate(ios::failbit);   //如果之前一次读取已经遇到了其他字符，说明类型不符
+	if (isspace(t) && !j) {
+		is.setstate(ios::failbit);    //如果只读到空格或者空格也没读到  说明已经到了文件结尾
+		isfail = false;
+	}
+	else if (!isspace(t) && isfail || !j && !isspace(t)) {
+		is.setstate(ios::failbit);   //如果之前一次读取已经遇到了其他字符，说明类型不符
+		isfail = false;
+	}
 	else if (!isspace(t) && !isfail)isfail = true;     //如果之前一次读取正常但这次遇到其他字符，先进行记录
 	else isfail = false;
 	return is;
@@ -119,7 +131,7 @@ istream& operator>>(istream &is, _int &a)  //包含了处理eof模块，可以�
 template<class T>
 bool operator!=(T a, const _int &b)
 {
-	if (a < 0 && b.sign==false || a >= 0 && b.sign == true)return true;
+	if (a < 0 && b.sign == false || a >= 0 && b.sign == true)return true;
 	for (int i = 0; i < b.length; i++) {
 		if (b.s[i] - '0' != a % 10)return true;
 		a /= 10;
@@ -130,7 +142,7 @@ bool operator!=(T a, const _int &b)
 
 const _int _int::operator+(_int a)
 {
-	int len = max(a.length , length);
+	int len = max(a.length, length);
 	int add = 0;
 	if (a.sign == sign) {
 		for (int i = 0; i < len; i++) {
@@ -198,9 +210,18 @@ _int a, b;
 //long long a, b;
 int main()
 {
-	//freopen("in.txt", "r", stdin);
-	//freopen("out.txt", "w", stdout);
-	while (cin >> a >> b) {
+	freopen("in.txt", "r", stdin);
+	freopen("out.txt", "w", stdout);
+	//cin >> a >> b;
+	while (cin >> a >> b&&(0!=a||0!=b)) {
 		cout << a + b << endl;
 	}
+	///for (int i = 0; i < 10000; i++) {
+	//	int d = rand() % 18 + 1;
+	//	for (int i = 0; i < d; i++)printf("%d", rand() % 9 + 1);
+	//	d = rand() % 18 + 1;
+	//	printf(" ");
+	//	for (int i = 0; i < d; i++)printf("%d", rand() % 9 + 1);
+	//	printf("\n");
+//	}
 }
