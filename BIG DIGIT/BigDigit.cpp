@@ -1,5 +1,6 @@
 #include<iostream>
 #include<algorithm>
+#include<cstdio>
 using namespace std;
 #define SIZE 128
 bool isfail = false;
@@ -11,13 +12,19 @@ private:
 public:
 	template<class T>
 	_int(T _num);
+
 	_int();
+
 	_int(const _int &a);
 
 	template<class T>
 	T operator=(T _a);
 
+	bool cmp(const char *a, const char *b, int len);
+
 	const _int& operator=(const _int &_a);
+
+	friend istream& operator>>(istream &is, _int &a);
 
 	friend ostream& operator<<(ostream &os, const _int &a);
 
@@ -25,29 +32,137 @@ public:
 	friend const _int operator+(T a, _int _b);
 
 	template<class T>
-	const _int operator+(T a);
+	friend const _int operator-(T a, _int _b);
+
+	_int operator++(int);    //后置++
+
+	_int operator--(int);    //后置--
+
+	_int operator++();
+
+	_int operator--();
 
 	const _int operator+(_int a);
 
-	friend istream& operator>>(istream &is, _int &a);
+	const _int operator-(_int a);
+
+	template<class T>
+	const _int operator-(T a);
+
+	template<class T>
+	const _int operator+(T a);
+
+	template<class T>
+	void operator+=(T a);
+
+	template<class T>
+	void operator-=(T a);
+
+	void operator+=(_int &a);
+
+	void operator-=(_int &a);
+
+	template<class T>
+	bool operator!=(T a);    
+
+	bool operator!=(_int &a);
 
 	template<class T>
 	friend bool operator!=(T a, const _int &b);
 
+	bool operator==(_int &a);
+
 	~_int();
 };
+
+bool _int::cmp(const char *a, const char *b, int len)
+{
+	for (int i = len - 1; i >= 0; i--) {
+		if (a[i] < b[i])return true;
+		if (a[i] > b[i])return false;
+	}
+	return true;
+}
 
 template<class T>
 _int::_int(T _num) {
 	*this = _num;
 }
 
+void _int::operator-=(_int &a)
+{
+	*this = *this - a;
+}
+
+_int _int::operator ++(int)
+{
+	*this += 1;
+	return *this - 1;
+}
+
+_int _int::operator--(int)
+{
+	*this -= 1;
+	return *this + 1;
+}
+
+_int _int::operator--()
+{
+	*this -= 1;
+	return *this;
+}
+
+_int _int::operator++()
+{
+	*this += 1;
+	return *this;
+}
+
+const _int _int::operator-(_int a)
+{
+	a.sign = !a.sign;
+	return *this + a;
+}
+
 template<class T>
-const _int operator+(T a, _int _b)//只写了正数相加或负数相加   还差正数和负数相加
+void _int::operator-=(T a)
+{
+	*this = *this - a;
+}
+
+template<class T>
+const _int operator-(T a, _int _b)
+{
+	_int tmp = a;
+	return tmp - _b;
+}
+
+template<class T>
+const _int _int::operator-(T a)
+{
+	a = -a;
+	return *this + a;
+}
+
+bool _int::operator==(_int &a)
+{
+	return !(a != *this);
+}
+
+template<class T>
+void _int::operator+=(T a)
+{
+	_int tmp = a;
+	*this = tmp + *this;
+}
+
+template<class T>
+const _int operator+(T a, _int _b)
 {
 	int cnt = 0, add = 0;
+	T k = a;
 	a = abs(a);
-	if (a < 0 && _b.sign == true || a >= 0 && _b.sign == false) {
+	if (k < 0 && _b.sign == true || k >= 0 && _b.sign == false) {
 		while (a) {
 			char t = _b.s[cnt];
 			if (cnt >= _b.length)_b.s[cnt] = '0';
@@ -62,16 +177,31 @@ const _int operator+(T a, _int _b)//只写了正数相加或负数相加   还�
 		_b.length = max(cnt, _b.length);
 	}
 	else {
-
+		_int tmp = k;     //将a升为_int 类型
+		_b = tmp + _b;
 	}
 	return _b;
 }
 
+bool _int::operator!=(_int &a)
+{
+	if (a.length != length)return true;
+	else for (int i = 0; i < a.length; i++) {
+		if (a.s[i] != s[i])return true;
+	}
+	return false;
+}
+
+void _int::operator+=(_int &a) {
+	*this = a + *this;
+}
+
 istream& operator>>(istream &is, _int &a)  //包含了处理eof模块，可以从输入流中读取位数不超过SIZE的大整数
 {								  //能达到和平常cin基本一致的效果
-	int cnt = 0; bool signflag = false;//判断是否读入了负号
+	int cnt = 0;
 	bool read = false;			//判断输入流是否到达结尾
 	char k[SIZE], t = ' ';
+	a.sign = false;   //默认为正
 	while (~scanf("%c", &t)) {
 		if (!isspace(t)) {
 			read = true;
@@ -94,7 +224,7 @@ istream& operator>>(istream &is, _int &a)  //包含了处理eof模块，可以�
 			k[cnt++] = t;
 		}
 		else if (isspace(t)) {
-			is.unget();
+			//is.unget();
 			break;
 		}
 		else {
@@ -129,6 +259,12 @@ istream& operator>>(istream &is, _int &a)  //包含了处理eof模块，可以�
 }
 
 template<class T>
+bool _int::operator!=(T a)
+{
+	return a != *this;
+}
+
+template<class T>
 bool operator!=(T a, const _int &b)
 {
 	if (a < 0 && b.sign == false || a >= 0 && b.sign == true)return true;
@@ -142,6 +278,7 @@ bool operator!=(T a, const _int &b)
 
 const _int _int::operator+(_int a)
 {
+	bool flag = false;
 	int len = max(a.length, length);
 	int add = 0;
 	if (a.sign == sign) {
@@ -153,6 +290,43 @@ const _int _int::operator+(_int a)
 		}
 		if (add)a.s[len++] = '0' + add;
 		a.length = len;
+	}
+	else {
+		if (a.length > length|| a.length == length&&!cmp(a.s,s,len)) {    //a>b
+			for (int i = 0; i < len; i++) {
+				char tmp = i < length ? s[i] : '0';
+				if (a.s[i] - tmp + add >= 0) {
+					a.s[i] = a.s[i] - tmp + add + '0';
+					add = 0;
+				}
+				else {
+					a.s[i] = a.s[i] - tmp + add + 10 + '0';
+					add = -1;
+				}
+				if (!add&&i >= length)break;
+			}
+		}
+		else {     //a<=b
+			for (int i = 0; i < len; i++) {
+				char tmp = i < a.length ? a.s[i] : '0';
+				if (s[i] - tmp + add >= 0) {
+					a.s[i] = s[i] - tmp + add + '0';
+					add = 0;
+				}
+				else {
+					a.s[i] = s[i] - tmp + add + 10 + '0';
+					add = -1;
+				}
+				if (!add&&i >= length)break;
+			}
+			a.length = length;
+			a.sign = sign;
+		}
+		for (int i = len - 1; i >= 0; i--) {
+			if (a.s[i] == '0'&&i)a.length--;
+			else break;
+		}
+		if (a.length == 1 && a.s[0] == '0')a.sign = false;
 	}
 	return a;
 }
@@ -207,16 +381,16 @@ ostream& operator<<(ostream &os, const _int &a)
 	return os;
 }
 _int a, b;
-//long long a, b;
+//long long a,b;
 int main()
 {
-	freopen("in.txt", "r", stdin);
-	freopen("out.txt", "w", stdout);
+	//freopen("in.txt", "r", stdin);
+	//freopen("out2.txt", "w", stdout);
 	//cin >> a >> b;
-	while (cin >> a >> b&&(0!=a||0!=b)) {
-		cout << a + b << endl;
+	while (cin >> a >> b) {
+		cout << a + b << endl << endl;
 	}
-	///for (int i = 0; i < 10000; i++) {
+	//for (int i = 0; i < 10000; i++) {
 	//	int d = rand() % 18 + 1;
 	//	for (int i = 0; i < d; i++)printf("%d", rand() % 9 + 1);
 	//	d = rand() % 18 + 1;
