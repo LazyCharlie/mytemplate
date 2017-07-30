@@ -19,6 +19,8 @@ public:
 
 	template<class T>
 	T operator=(T _a);
+	
+	operator bool();
 
 	bool cmp(const char *a, const char *b, int len);
 
@@ -74,6 +76,12 @@ public:
 
 	~_int();
 };
+
+_int::operator bool()
+{
+	if (length == 1 && s[0] == '0')return false;
+	return true;
+}
 
 bool _int::cmp(const char *a, const char *b, int len)
 {
@@ -384,11 +392,9 @@ _int a, b;
 //long long a,b;
 int main()
 {
-	//freopen("in.txt", "r", stdin);
-	//freopen("out2.txt", "w", stdout);
-	//cin >> a >> b;
-	while (cin >> a >> b) {
-		cout << a + b << endl << endl;
+	a = 50;
+	while (--a) {
+		cout << a << endl;
 	}
 	//for (int i = 0; i < 10000; i++) {
 	//	int d = rand() % 18 + 1;
